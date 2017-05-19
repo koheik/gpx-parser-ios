@@ -22,8 +22,10 @@ Pod::Spec.new do |s|
               LICENSE
   }
   s.author       = { "Jelle Vandebeeck" => "jelle@fousa.be" }
-  s.source       = { :git => "https://github.com/fousa/gpx-parser-ios.git", :tag => "1.0" }
-  s.platform     = :ios, '4.0'
+  s.source       = { :git => "https://github.com/koheik/gpx-parser-ios.git", :tag => "1.0" }
+  #s.platform     = :ios, '4.0'
+  s.ios.deployment_target = '6.0'
+  s.osx.deployment_target = '10.8'
 
   s.source_files = 'GPXParser/**/*.{h,m}'
   s.frameworks  = 'MapKit', 'CoreLocation'

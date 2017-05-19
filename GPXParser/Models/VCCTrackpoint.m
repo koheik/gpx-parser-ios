@@ -1,17 +1,21 @@
 //
-//  Fix.m
-//  GPX Reader
+//  VCCTrackpoint.m
+//  Debriefing
 //
-//  Created by Jelle Vandebeeck on 11/01/12.
-//  Copyright (c) 2012 fousa. All rights reserved.
+//  Created by Kohei Kajimoto on 2017/04/26.
+//  Copyright © 2017 koheik.com. All rights reserved.
 //
 
-#import "Fix.h"
+#import <Foundation/Foundation.h>
 
-@implementation Fix
+#import "VCCTrackpoint.h"
+
+@implementation VCCTrackpoint
+@synthesize epoch=_epoch;
+@synthesize heading=_heading;
 @synthesize latitude=_latitude;
 @synthesize longitude=_longitude;
-@synthesize epoch=_epoch;
+@synthesize speed=_speed;
 
 #pragma mark - Coordinate
 

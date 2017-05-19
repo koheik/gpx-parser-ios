@@ -11,4 +11,5 @@
 #import "Parser.h"
 
 @interface GPXParser : Parser
+@property (nonatomic, strong) NSDateFormatter *dateFormat;
 @end

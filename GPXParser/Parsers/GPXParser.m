@@ -6,35 +6,51 @@
 //  Copyright (c) 2012 fousa. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 #import "GPXParser.h"
 
 @implementation GPXParser
+
+- (id)init {
+    if (self = [super init]) {
+        self.dateFormat = [NSDateFormatter new];
+        self.dateFormat.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+        self.dateFormat.timeZone = [NSTimeZone timeZoneWithName: @"UTC"];
+    }
+    return self;
+}
 
 #pragma mark - XML Parser
 
 - (void)parser:(NSXMLParser *)parser didStartElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName attributes:(NSDictionary *)attributeDict {
     // Track
     if ([elementName isEqualToString:@"trk"]) {
-		if (!self.track) self.track = [Track new];
-	}
+        if (!self.track) self.track = [Track new];
+    }
     
     // Track point
     if ([elementName isEqualToString:@"trkpt"] && self.track) {
-		if (!self.fix) {
+        if (!self.fix) {
             self.fix = [Fix new];
             self.fix.latitude = [[attributeDict objectForKey:@"lat"] doubleValue];
             self.fix.longitude = [[attributeDict objectForKey:@"lon"] doubleValue];
         }
-	}
+    }
+    
+    // Track point time
+    if ([elementName isEqualToString:@"time"] && self.fix) {
+        self.currentString = [NSMutableString string];
+    }
     
     // Waypoint
     if ([elementName isEqualToString:@"wpt"]) {
-		if (!self.waypoint) {
+        if (!self.waypoint) {
             self.waypoint = [Waypoint new];
             self.waypoint.latitude = [[attributeDict objectForKey:@"lat"] doubleValue];
             self.waypoint.longitude = [[attributeDict objectForKey:@"lon"] doubleValue];
         }
-	}
+    }
     
     // Waypoint name
     if ([elementName isEqualToString:@"desc"] &&  self.waypoint) {
@@ -43,32 +59,39 @@
     
     // Route
     if ([elementName isEqualToString:@"rte"]) {
-		if (!self.route) self.route = [Track new];
-	}
+        if (!self.route) self.route = [Track new];
+    }
     
     // Route point
     if ([elementName isEqualToString:@"rtept"] && self.route) {
-		if (!self.fix) {
+        if (!self.fix) {
             self.fix = [Fix new];
             self.fix.latitude = [[attributeDict objectForKey:@"lat"] doubleValue];
             self.fix.longitude = [[attributeDict objectForKey:@"lon"] doubleValue];
         }
-	}
+    }
 }
 
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
     // End track
     if([elementName isEqualToString:@"trk"] && self.track) {
         [self.gpx.tracks addObject:self.track];
-		self.track = nil;
+        self.track = nil;
         return;
     }
     
     // End track point
     if([elementName isEqualToString:@"trkpt"] && self.fix && self.track) {
         [self.track.fixes addObject:self.fix];
-		self.fix = nil;
+        self.fix = nil;
         return;
+    }
+    
+    // End track point time
+    if ([elementName isEqualToString:@"time"] && self.fix) {
+        NSString* input = self.currentString;
+        NSDate* output = [self.dateFormat dateFromString:input];
+        self.fix.epoch = [output timeIntervalSince1970];
     }
     
     // Waypoint name
@@ -80,23 +103,23 @@
     // End waypoint
     if([elementName isEqualToString:@"wpt"] && self.waypoint) {
         [self.gpx.waypoints addObject:self.waypoint];
-		self.waypoint = nil;
+        self.waypoint = nil;
         return;
     }
     
     // End track
     if([elementName isEqualToString:@"rte"] && self.route) {
         [self.gpx.routes addObject:self.route];
-		self.route = nil;
+        self.route = nil;
         return;
     }
     
     // End Route point
     if([elementName isEqualToString:@"rtept"] && self.fix && self.route) {
         [self.route.fixes addObject:self.fix];
-		self.fix = nil;
+        self.fix = nil;
         return;
     }
 }
-    
+
 @end
